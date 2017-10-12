@@ -10,7 +10,6 @@
 
 #import <AVFoundation/AVFoundation.h>
 
-#define MWKProgressIndicatorHeight 64.0f
 #define statusBarHeight 14.0f
 @implementation MWKProgressIndicator
 {
@@ -38,9 +37,21 @@
     self = [super init];
     if (!self) return nil;
     
+    CGFloat progressIndicatorHeight = 0.0f;
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+        if (screenSize.height == 812.0f){
+            progressIndicatorHeight = 87.0f;
+        }else{
+            progressIndicatorHeight = 64.0f;
+        }
+    }
+    
     self.backgroundColor = [UIColor whiteColor];
 	CGFloat screenWidth=[MWKProgressIndicator getScreenWidth];
-	self.frame = CGRectMake(0, -MWKProgressIndicatorHeight, screenWidth, MWKProgressIndicatorHeight);
+    
+    self.frame = CGRectMake(0, -progressIndicatorHeight, screenWidth, progressIndicatorHeight);
     [[[[[UIApplication sharedApplication] keyWindow] subviews] firstObject] addSubview:self];
     
     _progress = 0.0;
@@ -48,7 +59,7 @@
     [_progressTrack setBackgroundColor:[UIColor colorWithRed:0.53 green:0.82 blue:1 alpha:1]];
     [self addSubview:_progressTrack];
     
-	_titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, statusBarHeight, screenWidth, MWKProgressIndicatorHeight - statusBarHeight)];
+	_titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, statusBarHeight, screenWidth, progressIndicatorHeight - statusBarHeight)];
     [_titleLabel setBackgroundColor:[UIColor clearColor]];
     [_titleLabel setTextColor:[UIColor blackColor]];
     [_titleLabel setTextAlignment:NSTextAlignmentCenter];
@@ -84,17 +95,19 @@
 
 - (void)dismissAnimated:(BOOL)animated
 {
-    if (CGRectGetMinY(self.frame) == -MWKProgressIndicatorHeight) return;
+    CGFloat progressIndicatorHeight = [MWKProgressIndicator getProgressIndicatorHeight];
+    
+    if (CGRectGetMinY(self.frame) == -progressIndicatorHeight) return;
     
     if (animated)
     {
         [self updateProgress:0.0];
-        [self setTopLocationValue:-MWKProgressIndicatorHeight];
+        [self setTopLocationValue:-progressIndicatorHeight];
     }
     else
     {
         _progressTrack.frame = CGRectMake(0, 0, 0, self.frame.size.height);
-        [self setTopLocationValue:-MWKProgressIndicatorHeight withDuration:0.0];
+        [self setTopLocationValue:-progressIndicatorHeight withDuration:0.0];
     }
 }
 
@@ -205,10 +218,12 @@
     
     _lock = YES;
     
+    CGFloat progressIndicatorHeight = [MWKProgressIndicator getProgressIndicatorHeight];
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         float hideDuration = 0.5;
         
-        [self setTopLocationValue:-MWKProgressIndicatorHeight withDuration:hideDuration];
+        [self setTopLocationValue:-progressIndicatorHeight withDuration:hideDuration];
         
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hideDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^
@@ -224,7 +239,7 @@
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((duration+hideDuration) * NSEC_PER_SEC)), dispatch_get_main_queue(),^
                        {
                            
-                           [self setTopLocationValue:-MWKProgressIndicatorHeight withDuration:hideDuration];
+                           [self setTopLocationValue:-progressIndicatorHeight withDuration:hideDuration];
                            
                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hideDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^
                                           {
@@ -276,10 +291,11 @@
 - (void)orientationChanged:(NSNotification *)notification
 {
 	    CGFloat screenWidth=[MWKProgressIndicator getScreenWidth];
+        CGFloat progressIndicatorHeight = [MWKProgressIndicator getProgressIndicatorHeight];
 	
-	    self.frame = CGRectMake(0, -MWKProgressIndicatorHeight, screenWidth,
-								 +                            MWKProgressIndicatorHeight);
-	    _titleLabel.frame=CGRectMake(0, statusBarHeight, screenWidth, MWKProgressIndicatorHeight - statusBarHeight);
+	    self.frame = CGRectMake(0, -progressIndicatorHeight, screenWidth,
+								 +                            progressIndicatorHeight);
+	    _titleLabel.frame=CGRectMake(0, statusBarHeight, screenWidth, progressIndicatorHeight - statusBarHeight);
 	}
 
 +(CGFloat)getScreenWidth
@@ -287,5 +303,17 @@
 	    //if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation)) return [UIScreen mainScreen].bounds.size.height;
 	    return [UIScreen mainScreen].bounds.size.width;
 	}
+
++(CGFloat)getProgressIndicatorHeight
+{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+        // Is this an iPhone X?
+        if (screenSize.height == 812.0f){
+            return 87.0f;
+        }
+    }
+    return 64.0f;
+}
 
 @end
