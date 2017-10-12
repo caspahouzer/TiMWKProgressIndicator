@@ -37,18 +37,8 @@
     self = [super init];
     if (!self) return nil;
     
-    CGFloat progressIndicatorHeight = 0.0f;
-    
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-        if (screenSize.height == 812.0f){
-            progressIndicatorHeight = 87.0f;
-        }else{
-            progressIndicatorHeight = 64.0f;
-        }
-    }
-    
     self.backgroundColor = [UIColor whiteColor];
+    CGFloat progressIndicatorHeight = [MWKProgressIndicator getProgressIndicatorHeight];
 	CGFloat screenWidth=[MWKProgressIndicator getScreenWidth];
     
     self.frame = CGRectMake(0, -progressIndicatorHeight, screenWidth, progressIndicatorHeight);
