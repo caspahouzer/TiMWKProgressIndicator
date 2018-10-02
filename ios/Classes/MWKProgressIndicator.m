@@ -299,8 +299,8 @@
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         CGSize screenSize = [[UIScreen mainScreen] bounds].size;
         // Is this an iPhone X?
-        if (screenSize.height == 812.0f){
-            return 87.0f;
+        if (screenSize.height >= 812.0f){
+            return 88.0f;
         }
     }
     return 64.0f;
